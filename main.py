@@ -46,8 +46,12 @@ def main():
         key = options[choice - 1][0]
 
         if key == "create_list":
-            lid = list_mod.create_list(user['id'])
-            print(f"Created list id={lid}")
+            name = input("List name: ").strip()
+            if not name:
+                print("Name required. List not created.")
+            else:
+                lid = list_mod.create_list(user['id'], name)
+                print(f"Created list id={lid} name={name}")
 
         elif key == "remove_list":
             lid = input("List id to remove: ").strip()
@@ -59,10 +63,10 @@ def main():
             res = list_mod.get_lists_for_user(user['id'])
             print("Owned:")
             for l in res['owned']:
-                print(f" - id={l['id']} owner={l['owner_id']}")
+                print(f" - id={l['id']} name={l.get('name','')} owner={l['owner_id']}")
             print("Shared:")
             for l in res['shared']:
-                print(f" - id={l['id']} owner={l['owner_id']}")
+                print(f" - id={l['id']} name={l.get('name','')} owner={l['owner_id']}")
 
         elif key == "add_item":
             lid = input("List id: ").strip()

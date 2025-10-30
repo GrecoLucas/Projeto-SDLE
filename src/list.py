@@ -1,10 +1,11 @@
 from .db import get_conn
 
 
-def create_list(owner_id: int):
+def create_list(owner_id: int, name: str):
+    """Create a shopping list with an owner and a name."""
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute('INSERT INTO shopping_lists (owner_id) VALUES (?)', (owner_id,))
+    cur.execute('INSERT INTO shopping_lists (owner_id, name) VALUES (?, ?)', (owner_id, name))
     conn.commit()
     list_id = cur.lastrowid
     conn.close()
@@ -24,12 +25,12 @@ def remove_list(list_id: int):
 def get_lists_for_user(user_id: int):
     conn = get_conn()
     cur = conn.cursor()
-    # lists owned
-    cur.execute('SELECT id, owner_id FROM shopping_lists WHERE owner_id = ?', (user_id,))
+    # lists owned (include name)
+    cur.execute('SELECT id, owner_id, name FROM shopping_lists WHERE owner_id = ?', (user_id,))
     owned = [dict(r) for r in cur.fetchall()]
-    # lists shared
+    # lists shared (include name)
     cur.execute('''
-        SELECT sl.id, sl.owner_id FROM shopping_lists sl
+        SELECT sl.id, sl.owner_id, sl.name FROM shopping_lists sl
         JOIN list_shares ls ON ls.list_id = sl.id
         WHERE ls.user_id = ?
     ''', (user_id,))
