@@ -3,6 +3,7 @@ from pathlib import Path
 
 DB_PATH = Path(__file__).resolve().parents[1] / "data" / "db.sqlite"
 SCHEMA_SQL = Path(__file__).resolve().parents[1] / "data" / "database.sql"
+SCHEMA_PATH = Path(__file__).resolve().parent.parent / 'data' / 'database.sql'
 
 
 def init_db(force: bool = False):
@@ -31,11 +32,6 @@ def get_conn():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
-import sqlite3
-from pathlib import Path
-
-DB_PATH = Path(__file__).resolve().parent.parent / 'data' / 'db.sqlite'
-SCHEMA_PATH = Path(__file__).resolve().parent.parent / 'data' / 'database.sql'
 
 
 def get_conn():
@@ -54,3 +50,17 @@ def init_db():
     conn.executescript(sql)
     conn.commit()
     conn.close()
+
+def get_all_users():
+    """Return a list of all users in the database."""
+    conn = get_conn()
+    cursor = conn.execute("SELECT name FROM users")
+    users = [row["name"] for row in cursor.fetchall()]
+    conn.close()
+    return users
+
+def destroy_db():
+    """Delete the existing database file."""
+    if DB_PATH.exists():
+        DB_PATH.unlink()
+    return not DB_PATH.exists()

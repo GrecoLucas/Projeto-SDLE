@@ -54,7 +54,7 @@ class App(ttk.Frame):
         left.columnconfigure(0, weight=1)
         left.rowconfigure(1, weight=1)
 
-        lbl_lists = ttk.Label(left, text="Listas (minhas e compartilhadas)")
+        lbl_lists = ttk.Label(left, text="Listas (compartilhadas entre todos)")
         lbl_lists.grid(row=0, column=0, sticky="w")
 
         self.lbx_lists = tk.Listbox(left, exportselection=False)
@@ -70,6 +70,10 @@ class App(ttk.Frame):
 
         self.btn_remove_list = ttk.Button(lists_btns, text="Remover lista", command=self.remove_list, state=tk.DISABLED)
         self.btn_remove_list.grid(row=0, column=1, padx=5)
+
+        # Refresh lists button
+        self.btn_refresh_lists = ttk.Button(lists_btns, text="Atualizar", command=self.refresh_lists, state=tk.DISABLED)
+        self.btn_refresh_lists.grid(row=0, column=2, padx=5, sticky="w")
 
         main.add(left, weight=1)
 
@@ -145,13 +149,10 @@ class App(ttk.Frame):
             return
         res = list_mod.get_lists_for_user(self.user["id"])
         self.lbx_lists.delete(0, tk.END)
-        # add owned
-        for l in res["owned"]:
-            self.lbx_lists.insert(tk.END, f"[OWN] id={l['id']} owner={l['owner_id']}")
-            self.lbx_lists.itemconfig(tk.END, foreground="#1f6feb")
-        # add shared
+        # all lists are shared with everyone
         for l in res["shared"]:
-            self.lbx_lists.insert(tk.END, f"[SHR] id={l['id']} owner={l['owner_id']}")
+            name = l.get("name", "")
+            self.lbx_lists.insert(tk.END, f"id={l['id']} name={name}")
         self.selected_list_id = None
         self.refresh_items()
 
@@ -210,6 +211,7 @@ class App(ttk.Frame):
         self.btn_logout.configure(state=tk.NORMAL)
         self.btn_create_list.configure(state=tk.NORMAL)
         self.btn_remove_list.configure(state=tk.NORMAL)
+        self.btn_refresh_lists.configure(state=tk.NORMAL)
         self.set_status("Login realizado")
         self.refresh_lists()
 
@@ -220,6 +222,7 @@ class App(ttk.Frame):
         self.btn_logout.configure(state=tk.DISABLED)
         self.btn_create_list.configure(state=tk.DISABLED)
         self.btn_remove_list.configure(state=tk.DISABLED)
+        self.btn_refresh_lists.configure(state=tk.DISABLED)
         self.lbx_lists.delete(0, tk.END)
         self.selected_list_id = None
         self.refresh_items()
@@ -253,7 +256,8 @@ class App(ttk.Frame):
         if not name or not name.strip():
             messagebox.showwarning("Nome inválido", "Informe um nome para a lista.")
             return
-        lid = list_mod.create_list(self.user["id"], name.strip())
+        # create_list now expects only the name; lists are shared with everyone
+        lid = list_mod.create_list(name.strip())
         self.set_status(f"Lista criada id={lid} name={name.strip()}")
         self.refresh_lists()
 
