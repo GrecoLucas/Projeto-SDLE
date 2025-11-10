@@ -49,16 +49,35 @@ def attach_list_panel(parent, app):
         if not getattr(app, "user", None):
             return
         res = list_mod.get_lists_for_user(app.user["id"])
+        
+        # Store current selection to try to restore it
+        current_sel = _parse_selected_list_id()
+        
         app.lbx_lists.delete(0, tk.END)
         for l in res["shared"]:
             name = l.get("name", "")
-            app.lbx_lists.insert(tk.END, f"id={l['id']} name={name}")
-        app.selected_list_id = None
-        # if refresh_items exists, call it
+            version = l.get("version", 0)
+            # Show version number in the list display
+            app.lbx_lists.insert(tk.END, f"id={l['id']} v{version} | {name}")
+        
+        # Try to restore selection if it still exists
+        if current_sel:
+            for i in range(app.lbx_lists.size()):
+                text = app.lbx_lists.get(i)
+                if f"id={current_sel}" in text:
+                    app.lbx_lists.selection_set(i)
+                    app.selected_list_id = current_sel
+                    break
+        else:
+            app.selected_list_id = None
+        
+        # if refresh_items exists, call it to update the items panel
         try:
             app.refresh_items()
         except Exception:
             pass
+        
+        app.set_status("Listas atualizadas da base de dados")
 
     def _parse_selected_list_id():
         sel = app.lbx_lists.curselection()

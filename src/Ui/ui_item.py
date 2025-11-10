@@ -25,7 +25,7 @@ def attach_item_panel(parent, app):
     # Items treeview
     tree = ttk.Treeview(
         right, 
-        columns=("name", "checked", "target", "acquired"), 
+        columns=("name", "checked", "target", "acquired", "version"), 
         show="headings", 
         selectmode="browse"
     )
@@ -33,10 +33,12 @@ def attach_item_panel(parent, app):
     tree.heading("checked", text="Marcado")
     tree.heading("target", text="Desejado")
     tree.heading("acquired", text="Adquirido")
-    tree.column("name", width=250)
+    tree.heading("version", text="Ver")
+    tree.column("name", width=220)
     tree.column("checked", width=80, anchor="center")
     tree.column("target", width=80, anchor="center")
     tree.column("acquired", width=90, anchor="center")
+    tree.column("version", width=50, anchor="center")
     tree.grid(row=1, column=0, sticky="nsew")
 
     # Item controls frame
@@ -110,6 +112,7 @@ def attach_item_panel(parent, app):
                 "✔" if it["checked"] else "",
                 it["target_quantity"],
                 it["acquired_quantity"],
+                it.get("version", 0),
             ))
         try:
             app.enable_item_controls(True)

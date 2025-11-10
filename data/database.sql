@@ -5,7 +5,9 @@ CREATE TABLE users (
 
 CREATE TABLE shopping_lists (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    version INTEGER DEFAULT 0,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE items (
@@ -15,5 +17,6 @@ CREATE TABLE items (
     checked BOOLEAN DEFAULT 0,
     target_quantity INTEGER DEFAULT 1,
     acquired_quantity INTEGER DEFAULT 0,
+    version INTEGER DEFAULT 0,
     FOREIGN KEY (list_id) REFERENCES shopping_lists(id)
 );
